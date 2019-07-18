@@ -1,6 +1,8 @@
 # tmux-hints
 Automatically show a cheat sheet or notes for any command focused in tmux. e.i. Show vim, zsh, tmux notes/key-combos in a pane when using them.
 
+![tmux-hint.sh Screenshot](https://raw.githubusercontent.com/hozza/tmux-hints/master/tmux-hints-sh.png)
+
 ## Install
 
 This is a bash script, you only need bash as a dependency _(which you probably already have)_ and whatever programme you'd like to show the hint file with, default is `cat`.
