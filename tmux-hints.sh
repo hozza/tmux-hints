@@ -14,14 +14,55 @@
 #	though loads of txt/md notes.
 #
 
+export PATH=/usr/local/bin:/bin:/usr/bin
+tag=${0##*/}
+
+say () { echo "$tag: $@" ; }
+die () { say "FATAL: $@" ; exit 1; }
+
+# sanity check
+case "$TMUX" in
+	"") die "You need to be running tmux to use tmux-hints!" ;;
+	*)  ;;
+esac
+
+
+header_init="# $tag\n"
+
 viewer="cat"
 extension=".txt"
 hint_path="$HOME/hints/"
 verbose=false
 quiet=false
-header_init="# tmux-hints.sh\n"
 repo="https://github.com/hozza/tmux-hints"
-version="0.2"
+version="0.3"
+
+# help doc
+help () {
+	echo -e "$header_init"
+
+	cat <<EndHelp
+	$tag version $version usage:
+
+	Synopsis:
+
+		$tag [SHORT-OPTION]
+
+	Option [default] Description:
+
+		-h  this help text
+		-o  [cat] hint file opener e.g. less|markdown
+		-p  [$HOME/hints/] /path/to/hint/files/
+		-q  quiet mode, hint only
+		-v  verbose
+		-x  [txt] hint file extension
+
+	By default, it will try to cat $HOME/hints/tmux.txt, make sure this exists! :)
+	For more help visit $repo
+EndHelp
+}
+
+
 
 while getopts 'o:x:p:vhq' flag; do
 	case "${flag}" in
@@ -30,10 +71,7 @@ while getopts 'o:x:p:vhq' flag; do
 		p) hint_path="${OPTARG}" ;;
 		v) verbose=true ;;
 		q) quiet=true ;;
-		h) 
-			echo -e "$header_init\ntmux-hints.sh version $version Usage:\n\nSynopsis:\n\n\ttmux-hints.sh [SHORT-OPTION]\n\nOption [default] Description:\n\n\t-o\t[cat] hint file opener e.g. less|markdown\n\t-x\t[txt] hint file extension\n\t-p\t[$HOME/hints/] /path/to/hint/files/\n\t-v\tverbose\n\t-q\tquiet mode, hint only\n\t-h\tthis help text\n\nFor more help visit the repo: $repo"
-			exit 2 
-		;;
+		h) help; exit 2 ;;
 		*) break ;;
 	esac
 done
@@ -47,10 +85,10 @@ tmux set-option focus-events on
 tmux set-hook pane-focus-in "run 'echo #{pane_current_command} > $temp_file'"
 
 
-clear_term="\ec"
+clear_term="$(tput clear)"
 [ "$verbose" == true ] && clear_term=''
 
-default="\nCreate a default hint file:\n\n"$hint_path"default"$extension"\n\nExit:\tCtrl+c\n\nUpdate:\t'git pull' in tmux-hint directory.\n\nHelp:\ttmux-hints.sh -h\n\nRepo:\t$repo\n"
+default="\nCreate a default hint file:\n\n"$hint_path"tmux"$extension"\n\nExit:\tCtrl+c\n\nUpdate:\t'git pull' in tmux-hint directory.\n\nHelp:\ttmux-hints.sh -h\n\nRepo:\t$repo\n"
 
 # init
 if [ "$quiet" == true ]; then
